@@ -10,14 +10,19 @@ class PreCommitServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->mergeConfigFrom(
-            implode(DIRECTORY_SEPARATOR, [
-                __DIR__, '..', 'config', 'pre-commit.php'
-            ]),
+        $cfDir = implode(DIRECTORY_SEPARATOR, [
+            __DIR__, '..', 'config', 'pre-commit.php'
+        ]);
+        $this->mergeConfigFrom($cfDir,
             'pre-commit'
         );
         $this->commands([
             PreCommitCommand::class,
         ]);
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                $cfDir
+            ], "pre-commit");
+        }
     }
 }
