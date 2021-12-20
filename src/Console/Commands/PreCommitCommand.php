@@ -27,7 +27,8 @@ class PreCommitCommand extends Command
      */
     protected $signature = 'pre-commit
                             {--install : Install GIT Pre Commit hook.}
-                            {--path= : The location where the pre commit check.}';
+                            {--path= : The location where the pre commit check.}
+                            {--all-files : Pre commit check all files.}';
 
     /**
      * The console command description.
@@ -44,8 +45,9 @@ class PreCommitCommand extends Command
     {
         if ($this->option('install')) {
             return $this->install();
-        }
-        if ($this->option('path')) {
+        }else if($this->option('path')){
+            $changed = $this->getPHPFilesOfPath($this->option('path'));
+        } else if($this->option('all-files')){
             $changed = $this->getPHPFilesOfPath();
         } else {
             $changed = $this->getPHPChangedFiles();
@@ -67,17 +69,17 @@ class PreCommitCommand extends Command
                 exit(1);
             }
         }
-        $this->info('🎉 All done!');
+        $this->info('🎉  All done!');
         return 0;
     }
 
     /**
      * @return array
      */
-    protected function getPHPFilesOfPath(): array
+    protected function getPHPFilesOfPath(string $path = ''): array
     {
         $files = [];
-        $path = base_path($this->option('path'));
+        $path = base_path($path);
         if (!$this->files->exists($path)) {
             $this->error("$path does not exists.");
         }
